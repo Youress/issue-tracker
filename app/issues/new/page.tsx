@@ -11,6 +11,7 @@ import { issueSchema } from "@/app/issueSchema";
 import { z } from "zod";
 import ErrorMessage from "@/app/components/ErrorMessage";
 import Spinner from "@/app/components/Spinner";
+import { Toaster } from "@/app/components/ToasterBanner";
 
 type IssueForm = z.infer<typeof issueSchema>;
 
@@ -26,10 +27,12 @@ const NewIssuePage = () => {
   });
   const [error, setError] = useState<String>();
   const [isSubmitting, setSubmitting] = useState<boolean>(false);
+  const [isOpen, setOpen] = useState<boolean>(false)
   const onSubmit = async (data: IssueForm) => {
     try {
       setSubmitting(true);
       await axios.post("/api/issues", data);
+      setOpen(true);
       router.push("/issues");
     } catch (error) {
       setSubmitting(false);
@@ -38,14 +41,14 @@ const NewIssuePage = () => {
   };
 
   return (
-    <div className="max-w-xl space-y-5">
+    <div className=" space-y-5">
       {error && (
         <Callout.Root color="red">
           <Callout.Text>{error} </Callout.Text>
         </Callout.Root>
       )}
 
-      <form className="max-w-xl space-y-3" onSubmit={handleSubmit(onSubmit)}>
+      <form className="max-w-xl space-y-3 " onSubmit={handleSubmit(onSubmit)}>
         <TextField.Root placeholder="Title" {...register("title")}>
           <TextField.Slot></TextField.Slot>
         </TextField.Root>
@@ -64,7 +67,8 @@ const NewIssuePage = () => {
          Submit New issue {isSubmitting && <Spinner/>}
         </Button>
       </form>
-    </div>
+      <Toaster isOpen={isOpen} setOpen={setOpen} />    
+      </div>
   );
 };
 
