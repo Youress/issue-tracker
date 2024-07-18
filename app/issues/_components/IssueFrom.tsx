@@ -14,16 +14,16 @@ import Spinner from "@/app/components/Spinner";
 import { Toaster } from "@/app/components/ToasterBanner";
 import { Issue } from "@prisma/client";
 
-const SimpleMDE = dynamic(()=>import("react-simplemde-editor"),{
-  ssr:false
-})
+const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
+  ssr: false,
+});
 
 type IssueFormData = z.infer<typeof issueSchema>;
 
 interface Props {
-  issue? : Issue
+  issue?: Issue;
 }
-const IssueForm = ({issue}:Props) => {
+const IssueForm = ({ issue }: Props) => {
   const router = useRouter();
   const {
     register,
@@ -35,11 +35,14 @@ const IssueForm = ({issue}:Props) => {
   });
   const [error, setError] = useState<String>();
   const [isSubmitting, setSubmitting] = useState<boolean>(false);
-  const [isOpen, setOpen] = useState<boolean>(false)
+  const [isOpen, setOpen] = useState<boolean>(false);
   const onSubmit = async (data: IssueFormData) => {
     try {
       setSubmitting(true);
-      await axios.post("/api/issues", data);
+      if (issue) {
+        await axios.patch(`/api/issues/${issue.id}`, data);
+      } else await axios.post("/api/issues", data);
+
       setOpen(true);
       router.push("/issues");
     } catch (error) {
@@ -57,7 +60,11 @@ const IssueForm = ({issue}:Props) => {
       )}
 
       <form className="max-w-xl space-y-3 " onSubmit={handleSubmit(onSubmit)}>
-        <TextField.Root defaultValue={issue?.title} placeholder="Title" {...register("title")}>
+        <TextField.Root
+          defaultValue={issue?.title}
+          placeholder="Title"
+          {...register("title")}
+        >
           <TextField.Slot></TextField.Slot>
         </TextField.Root>
         {<ErrorMessage>{errors.title?.message}</ErrorMessage>}
@@ -72,12 +79,12 @@ const IssueForm = ({issue}:Props) => {
         {<ErrorMessage>{errors.description?.message}</ErrorMessage>}
 
         <Button type="submit" disabled={isSubmitting}>
-         Submit New issue {isSubmitting && <Spinner/>}
+         {issue ? "update the issue" : "Submit New issue"} {isSubmitting && <Spinner />}
         </Button>
       </form>
-      <Toaster isOpen={isOpen} setOpen={setOpen} />    
-      </div>
-  ); 
+      <Toaster isOpen={isOpen} setOpen={setOpen} />
+    </div>
+  );
 };
 
 export default IssueForm;
