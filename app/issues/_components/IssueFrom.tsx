@@ -1,6 +1,6 @@
 "use client";
 import { Button, TextField, Callout, Text } from "@radix-ui/themes";
-import SimpleMDE from "react-simplemde-editor";
+import dynamic from "next/dynamic";
 import "easymde/dist/easymde.min.css";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
@@ -13,6 +13,10 @@ import ErrorMessage from "@/app/components/ErrorMessage";
 import Spinner from "@/app/components/Spinner";
 import { Toaster } from "@/app/components/ToasterBanner";
 import { Issue } from "@prisma/client";
+
+const SimpleMDE = dynamic(()=>import("react-simplemde-editor"),{
+  ssr:false
+})
 
 type IssueFormData = z.infer<typeof issueSchema>;
 
@@ -62,7 +66,7 @@ const IssueForm = ({issue}:Props) => {
           control={control}
           defaultValue={issue?.description}
           render={({ field }) => (
-            <SimpleMDE placeholder="description" {...field} />
+            <SimpleMDE placeholder="Description" {...field} />
           )}
         />
         {<ErrorMessage>{errors.description?.message}</ErrorMessage>}
