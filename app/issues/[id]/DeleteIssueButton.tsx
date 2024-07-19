@@ -7,13 +7,13 @@ import { Spinner } from "@/app/components";
 
 const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
   const router = useRouter();
-  const [error, setError] = useState(true);
+  const [error, setError] = useState(false);
   const [isDeleting, setDeleting] = useState(false);
   const handleSubmit = async () => {
     try {
       setDeleting(true);
       await axios.delete(`/api/issues/${issueId}`);
-      router.push("/issues");
+      router.push("/issues/list");
       router.refresh();
     } catch (error) {
       setDeleting(false);
