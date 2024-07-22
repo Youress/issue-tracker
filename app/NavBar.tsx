@@ -12,6 +12,7 @@ import {
   Flex,
   Text,
 } from "@radix-ui/themes";
+import {Skeleton} from "@/app/components"
 
 const NavBar = () => {
   return (
@@ -44,9 +45,8 @@ const NavLinks = () => {
         <li key={link.href}>
           <Link
             className={classnames({
-              "nav-link" : true,
+              "nav-link": true,
               "!text-zinc-900": link.href === currentPath,
-              
             })}
             href={link.href}
           >
@@ -61,9 +61,13 @@ const NavLinks = () => {
 const AuthStatus = () => {
   const { status, data: session } = useSession();
 
-  if (status === "loading") return null;
+  if (status === "loading") return <Skeleton width="3rem" />;
   if (status === "unauthenticated")
-    return <Link className="nav-link" href="/api/auth/signin">SignIn</Link>;
+    return (
+      <Link className="nav-link" href="/api/auth/signin">
+        SignIn
+      </Link>
+    );
 
   return (
     <Box>
