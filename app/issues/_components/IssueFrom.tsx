@@ -11,9 +11,10 @@ import { issueSchema } from "@/app/issueSchema";
 import { z } from "zod";
 import ErrorMessage from "@/app/components/ErrorMessage";
 import Spinner from "@/app/components/Spinner";
-import { Toaster } from "@/app/components/ToasterBanner";
 import { Issue } from "@prisma/client";
 import SimpleMDE from "react-simplemde-editor";
+import toast from "react-hot-toast";
+
 
 
 type IssueFormData = z.infer<typeof issueSchema>;
@@ -33,18 +34,18 @@ const IssueForm = ({ issue }: Props) => {
   });
   const [error, setError] = useState<String>();
   const [isSubmitting, setSubmitting] = useState<boolean>(false);
-  const [isOpen, setOpen] = useState<boolean>(false);
   const onSubmit = async (data: IssueFormData) => {
     try {
       setSubmitting(true);
       if (issue) {
         await axios.patch(`/api/issues/${issue.id}`, data);
       } else await axios.post("/api/issues", data);
+      toast.success("Issue Created")
 
-      setOpen(true);
       router.push("/issues/list");
       router.refresh()
     } catch (error) {
+      toast.error("Issue Cannot be created")
       setSubmitting(false);
       setError("An unexpected error occured.");
     }
@@ -81,7 +82,6 @@ const IssueForm = ({ issue }: Props) => {
          {issue ? "update the issue" : "Submit New issue"} {isSubmitting && <Spinner />}
         </Button>
       </form>
-      <Toaster isOpen={isOpen} setOpen={setOpen} />
     </div>
   );
 };
