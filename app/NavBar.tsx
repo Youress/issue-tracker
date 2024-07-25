@@ -79,6 +79,7 @@ const AuthStatus = () => {
               radius="full"
               src={session!.user!.image!}
               fallback="?"
+              referrerPolicy="no-referrer"
               className="cursor-pointer"
             />
           </DropdownMenu.Trigger>
