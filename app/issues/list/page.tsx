@@ -3,11 +3,15 @@ import prisma from "@/prisma/client";
 import { Issue, Status } from "@prisma/client";
 import { Table } from "@radix-ui/themes";
 import IssueActions from "./IssueActions";
-import NextLink from "next/link"
-import { ArrowUpIcon } from "@radix-ui/react-icons";
+import NextLink from "next/link";
+import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 
 interface Props {
-  searchParams: { status: Status, orderBy : keyof Issue };
+  searchParams: {
+    status: Status;
+    orderBy: keyof Issue;
+    sortOrder: "asc" | "desc";
+  };
 }
 const IssuePage = async ({ searchParams }: Props) => {
   const columns: { label: string; value: keyof Issue; className?: string }[] = [
@@ -15,13 +19,23 @@ const IssuePage = async ({ searchParams }: Props) => {
     { label: "Status", value: "status", className: "hidden md:table-cell" },
     { label: "Created", value: "createdAt", className: "hidden md:table-cell" },
   ];
-
+  console.log("toggle", !searchParams.sortOrder);
   const statuses = Object.values(Status);
   const status = statuses.includes(searchParams.status)
     ? searchParams.status
     : undefined;
+  const orderBy = columns.map(col=>col.value)
+  .includes(searchParams.orderBy)
+    ? { [searchParams.orderBy]: searchParams.sortOrder }
+    : undefined;
+  const toggleOrder = () => {
+    return !searchParams.sortOrder || searchParams.sortOrder === "desc"
+      ? "asc"
+      : "desc";
+  };
   const issues = await prisma.issue.findMany({
     where: { status },
+    orderBy,
   });
 
   return (
@@ -33,10 +47,23 @@ const IssuePage = async ({ searchParams }: Props) => {
           <Table.Row>
             {columns.map((col) => (
               <Table.ColumnHeaderCell className={col.className} key={col.value}>
-                <NextLink href={{
-                  query: {...searchParams, orderBy:col.value}
-                }}>{col.label}</NextLink>
-                {searchParams.orderBy === col.value && <ArrowUpIcon className="inline"/>}
+                <NextLink
+                  href={{
+                    query: {
+                      ...searchParams,
+                      orderBy: col.value,
+                      sortOrder: toggleOrder(),
+                    },
+                  }}
+                >
+                  {col.label}
+                </NextLink>
+                {searchParams.orderBy === col.value &&
+                  (searchParams.sortOrder === "asc" ? (
+                    <ArrowUpIcon className="inline" />
+                  ) : (
+                    <ArrowDownIcon className="inline" />
+                  ))}
               </Table.ColumnHeaderCell>
             ))}
           </Table.Row>
