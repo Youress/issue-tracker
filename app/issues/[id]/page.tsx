@@ -7,19 +7,19 @@ import DeleteIssueButton from "./DeleteIssueButton";
 import { getServerSession } from "next-auth";
 import authOptions from "@/app/api/auth/authOptions";
 import AssignSelect from "./AssignSelect";
+import { cache } from "react";
 
 interface Props {
   params: { id: string };
 }
 
+const fetchIssue = cache((issueId: number) =>
+  prisma.issue.findUnique({ where: { id: issueId } })
+);
+
 const IssueDetailPage = async ({ params }: Props) => {
   const session = await getServerSession(authOptions);
-
-  const issueDetail = await prisma.issue.findUnique({
-    where: {
-      id: parseInt(params.id),
-    },
-  });
+  const issueDetail = await fetchIssue(parseInt(params.id));
   if (!issueDetail) notFound();
   return (
     <Grid columns={{ initial: "1", md: "2" }} gap="5">
@@ -29,7 +29,7 @@ const IssueDetailPage = async ({ params }: Props) => {
       <Box maxWidth="8rem">
         {!!session && (
           <Flex direction="column" gap="4">
-            <AssignSelect issue={issueDetail}/>
+            <AssignSelect issue={issueDetail} />
             <EditIssueButton issueId={issueDetail.id} />
             <DeleteIssueButton issueId={issueDetail.id} />
           </Flex>
@@ -39,14 +39,12 @@ const IssueDetailPage = async ({ params }: Props) => {
   );
 };
 
-export async function generateMetadata({params}:Props){
-  const issue = await prisma.issue.findUnique({
-    where : {id :parseInt(params.id)}
-  })
+export async function generateMetadata({ params }: Props) {
+  const issue = await fetchIssue(parseInt(params.id));
   return {
     title: issue?.title,
-    description: 'Details of issue'  + issue?.id
-  }
+    description: "Details of issue" + issue?.id,
+  };
 }
 
 export default IssueDetailPage;
