@@ -18,6 +18,7 @@ interface Props {
 const IssueTable = ({searchParams, issues}:Props) => {
    
       const toggleOrder = () => {
+          // If searchParams.sortOrder is not defined or is "desc", return "asc"
         return !searchParams.sortOrder || searchParams.sortOrder === "desc"
           ? "asc"
           : "desc";

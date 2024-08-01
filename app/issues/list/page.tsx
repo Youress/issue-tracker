@@ -2,7 +2,7 @@ import prisma from "@/prisma/client";
 import { Issue, Status } from "@prisma/client";
 import IssueActions from "./IssueActions";
 import Pagination from "@/app/components/Pagination";
-import IssueTable, { columnNames } from "./issueTable";
+import IssueTable, { columnNames } from "./IssueTable";
 
 interface Props {
   searchParams: {
